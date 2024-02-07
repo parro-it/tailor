@@ -29,10 +29,7 @@ func (tl tailor) Close() error {
 func (tl *tailor) Read(p []byte) (n int, err error) {
 	n, err = tl.inner.Read(p)
 	if err == io.EOF {
-
-		// 4) reopen the file, seek to previous position
-		err = tl.waitSizeIncrease()
-		if err != nil {
+		if err = tl.waitSizeIncrease(); err != nil {
 			return
 		}
 
@@ -44,11 +41,11 @@ func (tl *tailor) Read(p []byte) (n int, err error) {
 func (tl *tailor) waitSizeIncrease() (err error) {
 	var st fs.FileInfo
 	fname := tl.inner.Name()
-
-	// 1) close the file
-	tl.inner.Close()
-	err = nil
-
+	/*
+		// 1) close the file
+		tl.inner.Close()
+		err = nil
+	*/
 	// 2) read the actual size of the file
 	st, err = os.Stat(fname)
 	if err != nil {
@@ -68,12 +65,13 @@ func (tl *tailor) waitSizeIncrease() (err error) {
 		}
 		sz = st.Size()
 	}
-
-	tl.inner, err = os.Open(fname)
-	if err != nil {
-		return
-	}
-
+	/*
+		// 4) reopen the file, seek to previous position
+		tl.inner, err = os.Open(fname)
+		if err != nil {
+			return
+		}
+	*/
 	_, err = tl.inner.Seek(origSz, 0)
 	return
 }
