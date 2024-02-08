@@ -13,11 +13,17 @@ type tailor struct {
 }
 
 func OpenFile(name string, wait time.Duration) (io.ReadCloser, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, err
+	for {
+		f, err := os.Open(name)
+		if os.IsNotExist(err) {
+			time.Sleep(wait)
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		return &tailor{f, wait}, nil
 	}
-	return &tailor{f, wait}, nil
 }
 
 // Close implements io.ReadCloser.
